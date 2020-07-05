@@ -1,7 +1,7 @@
 /**
  * 打赏二维码
  */
-var moneyUrl ="https://test-91f3af.tcb.qcloud.la/common/WechatIMG66.jpeg?sign=38e2cccbf86dd602ae575c89b2911b16&t=1556369699"
+var moneyUrl ="https://7072-product-raeub-1257595977.tcb.qcloud.la/WechatIMG25.jpeg?sign=c06ecac1e6cea4b4f3391058b7dc7559&t=1585576954"
 
 /**
  * 公众号二维码
@@ -11,8 +11,8 @@ var wechatUrl ="https://test-91f3af.tcb.qcloud.la/common/WechatIMG2.jpeg?sign=e8
 /**
  * 云开发环境
  */
-//var env ="product-raeub"
-var env ="test-91f3af"
+var env ="product-raeub"
+//var env ="test-91f3af"
 /**
  * 个人文章操作枚举
  */

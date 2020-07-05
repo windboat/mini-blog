@@ -6,6 +6,7 @@ const dateUtils = require('date-utils')
 const db = cloud.database()
 const _ = db.command
 const RELEASE_LOG_KEY = 'releaseLogKey'
+const APPLY_TEMPLATE_ID = 'DI_AuJDmFXnNuME1vpX_hY2yw1pR6kFXPZ7ZAQ0uLOY'
 
 // 云函数入口函数
 exports.main = async (event, context) => {
@@ -68,6 +69,9 @@ exports.main = async (event, context) => {
     }
     case 'getAdvertConfig': {
       return getAdvertConfig(event)
+    }
+    case 'approveApplyVip': {
+      return approveApplyVip(event)
     }
     default: break
   }
@@ -478,4 +482,88 @@ async function updateBatchPostsClassify(event) {
   }
 
   return true;
+}
+
+/**
+ * 审核会员状态
+ * @param {*} event 
+ */
+async function approveApplyVip(event) {
+  try {
+    console.info("会员审批")
+    console.info(event)
+    //申请状态 0:默认 1:申请中 2:申请通过 3:申请驳回
+    let applyStatus = 1
+    let level = 1
+    if (event.apply == 'pass') {
+      applyStatus = 2
+      level = 5
+    }
+    else if (event.apply == 'reject') {
+      applyStatus = 3
+    }
+    await db.collection('mini_member').doc(event.id).update({
+      data: {
+        applyStatus: applyStatus,
+        level: level,
+        modifyTime: new Date().getTime()
+      }
+    });
+
+    //通过后评论增加VIP
+    if (event.apply == 'pass') {
+      await db.collection('mini_comments').where({
+        cOpenId: event.openId
+      })
+      .update({
+        data: {
+          isVip: true
+        },
+      })
+    }
+
+    var templateInfo = await db.collection('mini_subcribute').where({
+      openId: event.openId,
+      templateId: APPLY_TEMPLATE_ID
+    }).limit(1).get()
+
+    console.info(templateInfo)
+
+    if (templateInfo.code) {
+      return true;
+    }
+    if (!templateInfo.data.length) {
+      return true;
+    }
+
+    await db.collection('mini_subcribute').doc(templateInfo.data[0]['_id']).remove()
+
+    try {
+      const result = await cloud.openapi.subscribeMessage.send({
+        touser: event.openId,
+        page: 'pages/mine/mine',
+        data: {
+          phrase1: {
+            value: event.apply == 'pass' ? "通过" : "驳回"
+          },
+          thing2: {
+            value: "VIP申请"
+          },
+          thing5: {
+            value: event.apply == 'pass' ? "恭喜成为VIP" : "没有打赏记录，不满足条件"
+          }
+        },
+        templateId: APPLY_TEMPLATE_ID
+      })
+      console.log(result)
+    } catch (err) {
+      console.log(err)
+    }
+
+    return true;
+  }
+  catch (e) {
+    console.error(e)
+    return false
+  }
 }

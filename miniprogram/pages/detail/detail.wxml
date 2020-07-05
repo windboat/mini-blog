@@ -56,13 +56,13 @@
       <view class="cu-avatar round" style="background-image:url({{item.cAvatarUrl}});" data-id="{{item._id}}" data-name="{{item.cNickName}}" data-openid="{{item.cOpenId}}" bindtap="focusComment"></view>
       <view class='content'>
         <view class='text-grey' data-id="{{item._id}}" data-name="{{item.cNickName}}" data-openid="{{item.cOpenId}}" bindtap="focusComment">
-          {{item.cNickName}}
+          {{item.cNickName}}<view wx:if="{{item.isVip}}" class="cu-tag line-orange radius sm">VIP</view>
         </view>
         <view class='text-gray text-content text-df'>{{item.comment}}</view>
         <view class='padding-sm radius  text-sm text-gray'>
           <view class="flex" wx:for="{{item.childComment}}" wx:key="id" wx:for-index="id" wx:for-item="childItem">
             <view data-id="{{item._id}}" data-name="{{childItem.cNickName}}" data-openid="{{childItem.cOpenId}}" bindtap="focusComment">
-              <view class='text-grey'>{{childItem.cNickName}}：</view>
+              <view class='text-grey'>{{childItem.cNickName}}<view wx:if="{{childItem.isVip}}" class="cu-tag line-orange radius sm">VIP</view>：</view>
             </view>
             <view class='flex-sub'>{{childItem.comment}}</view>
           </view>
@@ -137,3 +137,4 @@
     </view>
   </view>
 </view>
+
